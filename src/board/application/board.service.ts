@@ -2,11 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostRepository } from '../infrastructure/post.repository';
 import { CategoryRepository } from '../infrastructure/category.repository';
-import { CreatePostReqDto } from '../dto/create.post.req.dto';
+import { CreatePostReqDto } from '../dto/req/create.post.req.dto';
 import { MemberRepository } from '../../member/infrastructure/member.repository';
 import { Role } from '../../member/entity/member.role';
-import { UpdatePostReqDto } from '../dto/update.post.req.dto';
+import { UpdatePostReqDto } from '../dto/req/update.post.req.dto';
 import { Post } from '../entity/post.entity';
+import { PostDetailRespDto } from '../dto/resp/post.detail.resp.dto';
 
 @Injectable()
 export class BoardService {
@@ -75,6 +76,15 @@ export class BoardService {
     if(result == 0) {
       throw new HttpException('삭제할 수 없습니다.', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async getPostDetail(postId: number){
+    const post = await this.findPost(postId);
+    if(!post) {
+      throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
+    }
+
+    return PostDetailRespDto.toDto(post);
   }
 
   async findCategory(id: number) {

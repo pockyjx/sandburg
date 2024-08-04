@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { Member } from '../../member/entity/member.entity';
-import { Category } from '../entity/category.entity';
-import { Post } from '../entity/post.entity';
+import { Member } from '../../../member/entity/member.entity';
+import { Category } from '../../entity/category.entity';
+import { Post } from '../../entity/post.entity';
 
 export class CreatePostReqDto {
   @ApiProperty({description: '게시판 id'})
