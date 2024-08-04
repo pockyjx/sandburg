@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from '../application/auth.service';
-import { SignupReqDto } from '../dto/req/SignupReqDto';
+import { SigininDtoReq } from '../dto/req/siginin.dto.req';
 import { Member } from '../entity/member.entity';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -11,8 +11,12 @@ export class AuthController {
 
   @Post('/signup')
   @ApiOperation({summary: '회원가입'})
-  @ApiBody({ type: SignupReqDto })
-  async signup(@Body() dto: SignupReqDto): Promise<Member> {
-    return await this.authService.createMember(dto);
+  @ApiBody({ type: SigininDtoReq })
+  async signup(@Body() dto: SigininDtoReq) {
+    const member = await this.authService.createMember(dto);
+    return {
+      result: null,
+      message: '회원가입이 완료되었습니다.'
+    };
   }
 }

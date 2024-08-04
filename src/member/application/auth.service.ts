@@ -1,7 +1,7 @@
 import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberRepository } from '../infrastructure/member.repository';
-import { SignupReqDto } from '../dto/req/SignupReqDto';
+import { SigininDtoReq } from '../dto/req/siginin.dto.req';
 import { Member } from '../entity/member.entity';
 
 @Injectable()
@@ -10,17 +10,19 @@ export class AuthService {
     @InjectRepository(MemberRepository)
     private memberRepository: MemberRepository) {}
 
-  async createMember(dto: SignupReqDto): Promise<Member> {
+  async createMember(dto: SigininDtoReq): Promise<Member> {
     if(await this.findByLoginId(dto.loginId)) {
-      throw new ConflictException('존재하는 아이디입니다.');
+      throw new HttpException('이미 사용중인 아이디입니다.', HttpStatus.BAD_REQUEST);
     }
 
     if(await this.findByEmail(dto.email)) {
-      throw new ConflictException('존재하는 이메일입니다.');
+      throw new HttpException('이미 사용중인 이메일입니다.', HttpStatus.BAD_REQUEST);
+
     }
 
     if(await this.findByNickname(dto.nickname)) {
-      throw new ConflictException('존재하는 닉네임입니다.')
+      throw new HttpException('이미 사용중인 닉네임입니다.', HttpStatus.BAD_REQUEST);
+
     }
 
     const member = await this.memberRepository.create(dto);

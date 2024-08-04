@@ -2,7 +2,7 @@ import { Role } from '../../entity/member.role';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, Matches, Max } from 'class-validator';
 
-export class SignupReqDto {
+export class SigininDtoReq {
   @ApiProperty({description: '로그인 아이디'})
   @IsNotEmpty()
   loginId: string;
