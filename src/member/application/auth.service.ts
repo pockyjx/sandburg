@@ -5,12 +5,16 @@ import { SignupReqDto } from '../dto/req/signup.req.dto';
 import { Member } from '../entity/member.entity';
 import { SigninReqDto } from '../dto/req/signin.req.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import * as process from 'process';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(MemberRepository)
-    private memberRepository: MemberRepository) {}
+    private memberRepository: MemberRepository,
+    private readonly jwtService: JwtService
+    ) {}
 
   async createMember(dto: SignupReqDto): Promise<Member> {
     if(await this.findByLoginId(dto.loginId)) {
@@ -31,20 +35,21 @@ export class AuthService {
     return await this.memberRepository.save(member);
   }
 
-  async signin(dto: SigninReqDto) {
+  async signin(dto: SigninReqDto): Promise<string> {
     const findMember = await this.memberRepository.findOne({
       where: { loginId: dto.loginId }
     });
 
-    let validPassword = false;
-    if(findMember) {
-      validPassword = await bcrypt.compare(dto.password, findMember.password);
-    }
-    if(!findMember || !validPassword) {
+    if(!findMember) {
       throw new HttpException('아이디 혹은 비밀번호를 확인하세요.', HttpStatus.UNAUTHORIZED);
     }
 
-    return findMember;
+    const validPassword = await bcrypt.compare(dto.password, findMember.password);
+    if(!validPassword) {
+      throw new HttpException('아이디 혹은 비밀번호를 확인하세요.', HttpStatus.UNAUTHORIZED);
+    }
+
+    return this.createAccessToken(findMember);
   }
 
   async findByLoginId(loginId: string) {
@@ -63,5 +68,18 @@ export class AuthService {
     return await this.memberRepository.findOne({
       where: { email }
     });
+  }
+
+  createAccessToken(member: Member): string {
+    return this.jwtService.sign(
+      {
+        loginId: member.loginId,
+        role: member.role
+      },
+    {
+        secret: process.env.SECRET_KEY,
+        expiresIn: process.env.ACCESS_EXP
+      }
+    );
   }
 }

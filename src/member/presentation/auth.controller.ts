@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from '../application/auth.service';
 import { SignupReqDto } from '../dto/req/signup.req.dto';
 import { Member } from '../entity/member.entity';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SigninReqDto } from '../dto/req/signin.req.dto';
+import { Request, Response } from 'express';
+import { JwtAuthGuard } from '../../common/jwt/jwt.auth.guard';
 
 @ApiTags('Member')
 @Controller('auth')
@@ -25,12 +27,13 @@ export class AuthController {
   @Post("/signin")
   @ApiOperation({summary: '로그인'})
   @ApiBody({type: SigninReqDto})
-  async signin(@Body() dto: SigninReqDto) {
-    await this.authService.signin(dto);
+  async signin(@Body() dto: SigninReqDto,@Res() res: Response) {
+    const accessToken = await this.authService.signin(dto);
+    res.setHeader('Authorization', 'Bearer ' + accessToken);
 
-    return {
+    return res.status(HttpStatus.OK).json({
       result: null,
       message: '로그인이 완료되었습니다.'
-    }
+    });
   }
 }

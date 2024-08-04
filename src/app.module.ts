@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MemberModule } from './member/member.module';
 import { join } from 'path';
 import * as process from 'process';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import * as process from 'process';
       synchronize: true
     }),
 
-    MemberModule
+    MemberModule,
+    CommonModule
   ],
   controllers: [AppController],
   providers: [AppService],
