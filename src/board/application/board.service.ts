@@ -51,6 +51,10 @@ export class BoardService {
     });
   }
 
+  // async deletePost(dto: ) {
+  //
+  // }
+
   async findCategory(id: number) {
     return await this.categoryRepository.findOne({
       where: { id: id }
@@ -64,9 +68,10 @@ export class BoardService {
   }
 
   async findPost(id: number) {
-    return await this.postRepository.findOne({
-      where: { id: id },
-      relations: ['member']
-    });
+    return this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.member', 'member')
+      .where('post.id = :id', { id })
+      .getOne()
   }
 }

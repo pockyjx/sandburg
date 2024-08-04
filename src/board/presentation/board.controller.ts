@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { BoardService } from '../application/board.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/jwt/jwt.auth.guard';
@@ -43,5 +43,8 @@ export class BoardController {
       message: "게시글이 수정되었습니다."
     }
   }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Delete('/post')
 
 }
