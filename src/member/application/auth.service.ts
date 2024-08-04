@@ -36,10 +36,7 @@ export class AuthService {
   }
 
   async signin(dto: SigninReqDto): Promise<string> {
-    const findMember = await this.memberRepository.findOne({
-      where: { loginId: dto.loginId }
-    });
-
+    const findMember = await this.findByLoginId(dto.loginId);
     if(!findMember) {
       throw new HttpException('아이디 혹은 비밀번호를 확인하세요.', HttpStatus.UNAUTHORIZED);
     }
@@ -54,7 +51,7 @@ export class AuthService {
 
   async findByLoginId(loginId: string) {
     return this.memberRepository.findOne({
-      where: { loginId }
+      where: { loginId : loginId }
     });
   }
 
