@@ -1,8 +1,10 @@
-import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberRepository } from '../infrastructure/member.repository';
-import { SigininDtoReq } from '../dto/req/siginin.dto.req';
+import { SignupReqDto } from '../dto/req/signup.req.dto';
 import { Member } from '../entity/member.entity';
+import { SigninReqDto } from '../dto/req/signin.req.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +12,7 @@ export class AuthService {
     @InjectRepository(MemberRepository)
     private memberRepository: MemberRepository) {}
 
-  async createMember(dto: SigininDtoReq): Promise<Member> {
+  async createMember(dto: SignupReqDto): Promise<Member> {
     if(await this.findByLoginId(dto.loginId)) {
       throw new HttpException('이미 사용중인 아이디입니다.', HttpStatus.BAD_REQUEST);
     }
@@ -27,6 +29,22 @@ export class AuthService {
 
     const member = await this.memberRepository.create(dto);
     return await this.memberRepository.save(member);
+  }
+
+  async signin(dto: SigninReqDto) {
+    const findMember = await this.memberRepository.findOne({
+      where: { loginId: dto.loginId }
+    });
+
+    let validPassword = false;
+    if(findMember) {
+      validPassword = await bcrypt.compare(dto.password, findMember.password);
+    }
+    if(!findMember || !validPassword) {
+      throw new HttpException('아이디 혹은 비밀번호를 확인하세요.', HttpStatus.UNAUTHORIZED);
+    }
+
+    return findMember;
   }
 
   async findByLoginId(loginId: string) {
