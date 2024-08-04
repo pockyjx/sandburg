@@ -7,6 +7,7 @@ import { MemberModule } from './member/member.module';
 import { join } from 'path';
 import * as process from 'process';
 import { CommonModule } from './common/common.module';
+import { BoardModule } from './board/board.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { CommonModule } from './common/common.module';
     }),
 
     MemberModule,
-    CommonModule
+    CommonModule,
+    BoardModule
   ],
   controllers: [AppController],
   providers: [AppService],
