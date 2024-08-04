@@ -44,7 +44,18 @@ export class BoardController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Delete('/post')
+  @UseGuards(JwtAuthGuard)
+  @Delete('/post/:postId')
+  @ApiOperation({summary: '게시글 삭제'})
+  @ApiBearerAuth('access-token')
+  async deletePost(@Param('postId') postId: number, @Req() req: Request) {
+    const member = req.user as {loginId: string, role: string};
+    await this.boardService.deletePost(postId, member.loginId, member.role);
+
+    return {
+      result: null,
+      message: '게시글이 삭제되었습니다.'
+    }
+  }
 
 }

@@ -6,6 +6,7 @@ import { CreatePostReqDto } from '../dto/create.post.req.dto';
 import { MemberRepository } from '../../member/infrastructure/member.repository';
 import { Role } from '../../member/entity/member.role';
 import { UpdatePostReqDto } from '../dto/update.post.req.dto';
+import { Post } from '../entity/post.entity';
 
 @Injectable()
 export class BoardService {
@@ -51,9 +52,30 @@ export class BoardService {
     });
   }
 
-  // async deletePost(dto: ) {
-  //
-  // }
+  async deletePost(postId: number, loginId: string, role: string) {
+    let result = 0;
+    const member = await this.findMember(loginId);
+
+    if(!member) {
+      throw new HttpException('존재하지 않는 회원입니다.', HttpStatus.NOT_FOUND)
+    }
+
+    if(role == "ADMIN") {
+      result = (await this.postRepository.delete(postId)).affected;
+    } else {
+      result = (await this.postRepository
+        .createQueryBuilder()
+        .delete()
+        .from(Post)
+        .where('id = :postId', { postId })
+        .andWhere('memberId = :memberId', { memberId: member.id })
+        .execute()).affected
+    }
+
+    if(result == 0) {
+      throw new HttpException('삭제할 수 없습니다.', HttpStatus.BAD_REQUEST);
+    }
+  }
 
   async findCategory(id: number) {
     return await this.categoryRepository.findOne({
