@@ -21,6 +21,7 @@ async function bootstrap() {
     .setTitle('API 문서')
     .setDescription('API 문서입니다.')
     .setVersion('1.0')
+    .addBearerAuth({type: 'http', scheme: 'bearer', bearerFormat: 'Token'}, 'access-token')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
