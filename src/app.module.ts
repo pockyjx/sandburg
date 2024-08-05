@@ -33,7 +33,7 @@ import { BoardModule } from './board/board.module';
     CommonModule,
     BoardModule
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService],
 })
 

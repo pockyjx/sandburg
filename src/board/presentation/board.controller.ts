@@ -14,7 +14,10 @@ export class BoardController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/post')
-  @ApiOperation({summary: '게시글 등록'})
+  @ApiOperation({
+    summary: '게시글 등록',
+    description: 'categoryId - 1 (자유) : USER/ADMIN 작성 가능 + 2 (공지) & 3 (운영) : ADMIN만 작성 가능'
+  })
   @ApiBody({ type: CreatePostReqDto})
   @ApiBearerAuth('access-token')
   async createPost(@Body() dto: CreatePostReqDto, @Req() req: Request) {
@@ -29,7 +32,10 @@ export class BoardController {
 
   @UseGuards(JwtAuthGuard)
   @Put('/post/:postId')
-  @ApiOperation({summary: '게시글 수정'})
+  @ApiOperation({
+    summary: '게시글 수정',
+    description: '작성자 본인만 수정 가능'
+  })
   @ApiBody({ type: UpdatePostReqDto})
   @ApiBearerAuth('access-token')
   async updatePost(@Body() dto: UpdatePostReqDto,
@@ -46,7 +52,10 @@ export class BoardController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('/post/:postId')
-  @ApiOperation({summary: '게시글 삭제'})
+  @ApiOperation({
+    summary: '게시글 삭제',
+    description: '관리자 & 작성자 본인만 삭제 가능'
+  })
   @ApiBearerAuth('access-token')
   async deletePost(@Param('postId') postId: number, @Req() req: Request) {
     const member = req.user as {loginId: string, role: string};
@@ -60,7 +69,10 @@ export class BoardController {
 
   @UseGuards(OptionalJwtAuthGuard)
   @Get('/post/:postId')
-  @ApiOperation({summary: '특정 게시글 상세 보기'})
+  @ApiOperation({
+    summary: '특정 게시글 상세 보기',
+    description: 'categoryId - 1 (자유) & 2 (공지) : USER(비회원)/ADMIN 조회 가능 + 3 (운영) : ADMIN만 조회 가능'
+  })
   @ApiBearerAuth('access-token')
   async getPostDetail(@Param('postId') postId: number, @Req() req: Request) {
     const member = req.user as {role: string};
@@ -76,7 +88,10 @@ export class BoardController {
   // @Get('/post/list') : list를 위 라우팅의 :postId로 인식해서 계속 위 API가 호출되는 문제 발생..
   @UseGuards(OptionalJwtAuthGuard)
   @Get('/list')
-  @ApiOperation({summary: '게시글 목록 (카테고리 + 검색 필터링)'})
+  @ApiOperation({
+    summary: '게시글 목록 (카테고리 + 검색 필터링)',
+    description: 'categoryId - 1 (자유) & 2 (공지) : USER(비회원)/ADMIN 조회 가능 + 3 (운영) : ADMIN만 조회 가능'
+  })
   @ApiQuery({name: 'categoryId', required: false, description: '카테고리'})
   @ApiQuery({name: 'search', required: false, description: '검색어'})
   @ApiBearerAuth('access-token')
