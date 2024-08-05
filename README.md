@@ -12,7 +12,7 @@
 ## 개발 및 배포 환경
 - **Language** : TypeScript
 - **Framework** : node.js v20.16.0 / nest.js 10.4.2
-- **Infra** : AWS EC2, Docker, Route 53, AWS ELB Github Actions
+- **Infra** : AWS EC2, Docker, Route 53, AWS ELB, Github Actions
 <br>
 
 ## 요구사항 및 구현 기능
