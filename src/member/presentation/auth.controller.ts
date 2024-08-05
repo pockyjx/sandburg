@@ -13,7 +13,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
-  @ApiOperation({summary: '회원가입'})
+  @ApiOperation({
+    summary: '회원가입',
+    description: 'password: 대+ 소문자 + 특수문자(~!@#$%^&*()) 포함 + 20자 / birth : YYYY-MM-DD / role : USER or ADMIN'
+  })
   @ApiBody({ type: SignupReqDto })
   async signup(@Body() dto: SignupReqDto) {
     await this.authService.createMember(dto);
