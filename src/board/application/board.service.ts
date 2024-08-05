@@ -8,6 +8,7 @@ import { Role } from '../../member/entity/member.role';
 import { UpdatePostReqDto } from '../dto/req/update.post.req.dto';
 import { Post } from '../entity/post.entity';
 import { PostDetailRespDto } from '../dto/resp/post.detail.resp.dto';
+import { PostListRespDto } from '../dto/resp/post.list.resp.dto';
 
 @Injectable()
 export class BoardService {
@@ -85,6 +86,24 @@ export class BoardService {
     }
 
     return PostDetailRespDto.toDto(post);
+  }
+
+  async getPostList(categoryId?: number, search?: string) {
+    const query = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.member', 'member')
+      .leftJoin('post.category', 'category')
+      .addSelect(['member.nickname', 'category.name', 'category.id']);
+
+    if(categoryId != undefined) {
+      query.andWhere('post.categoryId = :categoryId', { categoryId });
+    }
+
+    if(search) {
+      query.andWhere('(post.title like :search or post.content like :search)', {search: `%${search}%`})
+    }
+
+    return PostListRespDto.toDto(await query.getMany());
   }
 
   async findCategory(id: number) {

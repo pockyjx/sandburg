@@ -1,12 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { BoardService } from '../application/board.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/jwt/jwt.auth.guard';
 import { CreatePostReqDto } from '../dto/req/create.post.req.dto';
 import { Request } from 'express';
-import { UpdateResult } from 'typeorm';
 import { UpdatePostReqDto } from '../dto/req/update.post.req.dto';
-import { PostDetailRespDto } from '../dto/resp/post.detail.resp.dto';
 
 @ApiTags('Board')
 @Controller('board')
@@ -62,6 +60,8 @@ export class BoardController {
   @Get('/post/:postId')
   @ApiOperation({summary: '특정 게시글 상세 보기'})
   async getPostDetail(@Param('postId') postId: number) {
+    console.log(postId + '번 글 조회');
+
     const dto = await this.boardService.getPostDetail(postId);
     return {
       result: dto,
@@ -69,4 +69,19 @@ export class BoardController {
     }
   }
 
+  // @Get('/post/list') : list를 위 라우팅의 :postId로 인식해서 계속 위 API가 호출되는 문제 발생..
+  @Get('/list')
+  @ApiOperation({summary: '게시글 목록 (카테고리 + 검색 필터링)'})
+  @ApiQuery({name: 'categoryId', required: false, description: '카테고리'})
+  @ApiQuery({name: 'search', required: false, description: '검색어'})
+  async getPostList(@Query('search') search?: string,
+                    @Query('categoryId') categoryId?: string) {
+    const parsedCategoryId = categoryId ? parseInt(categoryId, 10) : undefined;
+    const dto = await this.boardService.getPostList(parsedCategoryId, search);
+
+    return {
+      result: dto,
+      message: '게시글 목록을 조회하였습니다.'
+    }
+  }
 }
