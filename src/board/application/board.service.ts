@@ -30,7 +30,7 @@ export class BoardService {
     }
 
     const member = await this.findMember(loginId);
-    if(member.role == Role.USER && (category.name == 'notice'|| category.name == 'admin')) {
+    if(member.role == Role.USER && category.writeRole == Role.ADMIN) {
       throw new HttpException('잘못된 접근입니다.', HttpStatus.BAD_REQUEST);
     }
 
@@ -79,23 +79,37 @@ export class BoardService {
     }
   }
 
-  async getPostDetail(postId: number){
+  async getPostDetail(postId: number, memberRole: string){
     const post = await this.findPost(postId);
     if(!post) {
       throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
     }
 
+    const categoryRole = post.category.viewRole;
+    if(memberRole != 'ADMIN' && categoryRole == 'ADMIN') {
+      throw new HttpException('잘못된 접근입니다.', HttpStatus.BAD_REQUEST);
+    }
+
     return PostDetailRespDto.toDto(post);
   }
 
-  async getPostList(categoryId?: number, search?: string) {
+  async getPostList(memberRole: string, categoryId?: number, search?: string) {
     const query = this.postRepository
       .createQueryBuilder('post')
       .leftJoin('post.member', 'member')
       .leftJoin('post.category', 'category')
       .addSelect(['member.nickname', 'category.name', 'category.id']);
 
+    if(memberRole != 'ADMIN') {
+      query.andWhere('category.viewRole = "USER"');
+    }
+
     if(categoryId != undefined) {
+      const category = await this.findCategory(categoryId);
+      if(!category || (category.viewRole == 'ADMIN' && memberRole != "ADMIN")) {
+        throw new HttpException('잘못된 접근입니다.', HttpStatus.BAD_REQUEST);
+      }
+
       query.andWhere('post.categoryId = :categoryId', { categoryId });
     }
 
@@ -121,7 +135,9 @@ export class BoardService {
   async findPost(id: number) {
     return this.postRepository
       .createQueryBuilder('post')
-      .leftJoinAndSelect('post.member', 'member')
+      .leftJoin('post.member', 'member')
+      .leftJoin('post.category', 'category')
+      .addSelect(['member.loginId', 'category.id', 'category.name', 'category.viewRole'])
       .where('post.id = :id', { id })
       .getOne()
   }

@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../../common/jwt/jwt.auth.guard';
 import { CreatePostReqDto } from '../dto/req/create.post.req.dto';
 import { Request } from 'express';
 import { UpdatePostReqDto } from '../dto/req/update.post.req.dto';
+import { OptionalJwtAuthGuard } from '../../common/jwt/optional.jwt.auth.guard';
 
 @ApiTags('Board')
 @Controller('board')
@@ -57,12 +58,15 @@ export class BoardController {
     }
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('/post/:postId')
   @ApiOperation({summary: '특정 게시글 상세 보기'})
-  async getPostDetail(@Param('postId') postId: number) {
-    console.log(postId + '번 글 조회');
+  @ApiBearerAuth('access-token')
+  async getPostDetail(@Param('postId') postId: number, @Req() req: Request) {
+    const member = req.user as {role: string};
+    const role = member? member.role : null;
 
-    const dto = await this.boardService.getPostDetail(postId);
+    const dto = await this.boardService.getPostDetail(postId, role);
     return {
       result: dto,
       message: postId +  '번 게시글을 조회하였습니다.'
@@ -70,14 +74,20 @@ export class BoardController {
   }
 
   // @Get('/post/list') : list를 위 라우팅의 :postId로 인식해서 계속 위 API가 호출되는 문제 발생..
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('/list')
   @ApiOperation({summary: '게시글 목록 (카테고리 + 검색 필터링)'})
   @ApiQuery({name: 'categoryId', required: false, description: '카테고리'})
   @ApiQuery({name: 'search', required: false, description: '검색어'})
-  async getPostList(@Query('search') search?: string,
-                    @Query('categoryId') categoryId?: string) {
+  @ApiBearerAuth('access-token')
+  async getPostList(@Req() req: Request,
+                    @Query('search') search?: string,
+                    @Query('categoryId') categoryId?: string,) {
+    const member = req.user as {role: string};
+    const role = member? member.role : null;
+
     const parsedCategoryId = categoryId ? parseInt(categoryId, 10) : undefined;
-    const dto = await this.boardService.getPostList(parsedCategoryId, search);
+    const dto = await this.boardService.getPostList(role, parsedCategoryId, search);
 
     return {
       result: dto,

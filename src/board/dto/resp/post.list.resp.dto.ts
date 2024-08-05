@@ -1,35 +1,14 @@
 import { Post } from '../../entity/post.entity';
+import { PostDetailRespDto } from './post.detail.resp.dto';
 
 export class PostListRespDto {
-  lists: List[];
+  lists: PostDetailRespDto[];
 
   static toDto(posts: Post[]) {
-    return new PostListRespDto(List.toPostList(posts));
+    return new PostListRespDto(PostDetailRespDto.toPostList(posts));
   }
 
-  constructor(lists: List[]) {
+  constructor(lists: PostDetailRespDto[]) {
     this.lists = lists;
-  }
-}
-
-export class List {
-  postId: number;
-  title: string;
-  nickname: string;
-  createdAt: Date;
-  categoryId: number;
-  categoryName: string;
-
-  static toPostList(posts: Post[]) {
-    return posts.map(post => new List(post));
-  }
-
-  constructor(post: Post) {
-    this.postId = post.id;
-    this.title = post.title;
-    this.nickname = post.member.nickname;
-    this.createdAt = post.createdAt;
-    this.categoryId = post.category.id;
-    this.categoryName = post.category.name;
   }
 }
