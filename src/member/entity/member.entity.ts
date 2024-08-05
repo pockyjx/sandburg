@@ -1,6 +1,7 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from './member.role';
 import * as bcrypt from 'bcrypt';
+import { Post } from '../../board/entity/post.entity';
 
 @Entity()
 export class Member {
@@ -36,6 +37,9 @@ export class Member {
 
   @Column({type: 'enum', enum: Role, nullable: false})
   role: Role;
+
+  @OneToMany(() => Post, (post) => post.member)
+  post: Post[];
 
   @BeforeInsert()
   private beforeInsert() {

@@ -7,6 +7,7 @@ import { MemberModule } from './member/member.module';
 import { join } from 'path';
 import * as process from 'process';
 import { CommonModule } from './common/common.module';
+import { BoardModule } from './board/board.module';
 
 @Module({
   imports: [
@@ -25,11 +26,13 @@ import { CommonModule } from './common/common.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [join(__dirname, '**', '*.entity{.ts,.js}')],
-      synchronize: true
+      synchronize: true,
+      logging: true
     }),
 
     MemberModule,
-    CommonModule
+    CommonModule,
+    BoardModule
   ],
   controllers: [AppController],
   providers: [AppService],

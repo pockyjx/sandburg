@@ -1,4 +1,4 @@
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Delete, Req, UseGuards } from '@nestjs/common';
 import { Member } from '../entity/member.entity';
 import { MemberService } from '../application/member.service';
@@ -12,7 +12,8 @@ export class MemberController {
 
   @Delete('/resign')
   @UseGuards(JwtAuthGuard)
-  @ApiResponse({description: '회원 탈퇴'})
+  @ApiOperation({summary: '회원 탈퇴'})
+  @ApiBearerAuth('access-token')
   async resign(@Req() req: Request) {
     const member = req.user as {loginId: string};
     await this.memberService.deleteMember(member.loginId);
